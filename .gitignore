@@ -1,0 +1,29 @@
+# Java / Maven
+target/
+*.iml
+.idea/
+.project
+.classpath
+.settings/
+
+# Maven Wrapper
+.mvn/wrapper/maven-wrapper.jar
+
+# Node / Vite
+node_modules/
+dist/
+.eslintcache
+.parcel-cache
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.*
+

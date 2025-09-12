@@ -1,0 +1,12 @@
+server:
+  port: 9090
+management:
+  endpoints:
+    web:
+      exposure:
+        include: info,health
+app:
+  uploadDir: uploads
+worker:
+  url: http://localhost:9091
+
