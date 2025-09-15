@@ -1,0 +1,120 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: autovyn-app
+  namespace: dev
+  labels:
+    app: autovyn-app
+    env: dev
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: autovyn-app
+  template:
+    metadata:
+      labels:
+        app: autovyn-app
+        env: dev
+    spec:
+      serviceAccountName: autovyn-app-sa
+      containers:
+      - name: app
+        image: us-central1-docker.pkg.dev/gcp-assignment-471905/gcp-assignment-repo/app:latest
+        ports:
+        - containerPort: 9090
+        env:
+        - name: DB_HOST
+          value: "10.75.192.3"  # Cloud SQL private IP
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_NAME
+          value: "autovyn_db"
+        - name: DB_USER
+          value: "postgres"
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: password
+        - name: REDIS_HOST
+          value: "10.75.193.3"  # Memorystore private IP
+        - name: REDIS_PORT
+          value: "6379"
+        - name: GCS_BUCKET
+          value: "gcp-assignment-uploads-471905"
+        - name: PUBSUB_TOPIC
+          value: "gcp-assignment-topic"
+        - name: GOOGLE_CLOUD_PROJECT
+          value: "gcp-assignment-471905"
+        - name: GOOGLE_CLOUD_REGION
+          value: "us-central1"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: 9090
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: 9090
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: autovyn-app-service
+  namespace: dev
+  labels:
+    app: autovyn-app
+spec:
+  selector:
+    app: autovyn-app
+  ports:
+  - port: 80
+    targetPort: 9090
+  type: ClusterIP
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: autovyn-app-pdb
+  namespace: dev
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: autovyn-app
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: autovyn-app-hpa
+  namespace: dev
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: autovyn-app
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70

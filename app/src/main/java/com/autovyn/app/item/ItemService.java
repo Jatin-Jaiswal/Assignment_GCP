@@ -1,39 +1,48 @@
 package com.autovyn.app.item;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 @Service
+@Transactional
 public class ItemService {
-    private final Map<String, Item> items = new LinkedHashMap<>();
+    private final ItemRepository repository;
+
+    public ItemService(ItemRepository repository) {
+        this.repository = repository;
+    }
 
     public List<Item> list() {
-        return new ArrayList<>(items.values());
+        return repository.findByOrderByCreatedAtDesc();
     }
 
     public Optional<Item> get(String id) {
-        return Optional.ofNullable(items.get(id));
+        return repository.findById(id);
     }
 
     public Item create(Item request) {
         Item item = new Item(request.getName(), request.getDescription());
-        items.put(item.getId(), item);
-        return item;
+        return repository.save(item);
     }
 
     public Optional<Item> update(String id, Item request) {
-        Item existing = items.get(id);
-        if (existing == null) return Optional.empty();
-        existing.setName(request.getName());
-        existing.setDescription(request.getDescription());
-        existing.setUpdatedAt(Instant.now());
-        return Optional.of(existing);
+        return repository.findById(id)
+                .map(existing -> {
+                    existing.setName(request.getName());
+                    existing.setDescription(request.getDescription());
+                    return repository.save(existing);
+                });
     }
 
     public boolean delete(String id) {
-        return items.remove(id) != null;
+        if (repository.existsById(id)) {
+            repository.deleteById(id);
+            return true;
+        }
+        return false;
     }
 }
 

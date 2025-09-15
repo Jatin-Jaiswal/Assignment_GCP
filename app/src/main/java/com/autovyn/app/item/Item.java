@@ -1,34 +1,52 @@
 package com.autovyn.app.item;
 
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
 import java.util.UUID;
 
+@Entity
+@Table(name = "items")
 public class Item {
+    @Id
     private String id;
 
     @NotBlank
     @Size(max = 100)
+    @Column(nullable = false, length = 100)
     private String name;
 
     @Size(max = 500)
+    @Column(length = 500)
     private String description;
 
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
     public Item() {
         this.id = UUID.randomUUID().toString();
-        this.createdAt = Instant.now();
-        this.updatedAt = this.createdAt;
     }
 
     public Item(String name, String description) {
         this();
         this.name = name;
         this.description = description;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        if (id == null) {
+            id = UUID.randomUUID().toString();
+        }
     }
 
     public String getId() { return id; }

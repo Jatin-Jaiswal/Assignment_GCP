@@ -7,6 +7,7 @@ export default defineConfig({
     proxy: {
       '/v1': 'http://localhost:9090',
       '/health': 'http://localhost:9090',
+      '/actuator': 'http://localhost:9090',
       '/info': 'http://localhost:9090'
     }
   }
