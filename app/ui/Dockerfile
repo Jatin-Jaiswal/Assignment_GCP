@@ -17,15 +17,15 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Create non-root user
+# Install shadow for user management
+RUN apk add --no-cache shadow
+
+# Create non-root user (kept for file ownership), but run as root to bind :80
 RUN addgroup -g 1000 appuser && adduser -u 1000 -G appuser -s /bin/sh -D appuser
 
-# Change ownership
-RUN chown -R appuser:appuser /usr/share/nginx/html /var/cache/nginx /var/log/nginx /etc/nginx/conf.d
+# Change ownership to non-root user for files
+RUN chown -R appuser:appuser /usr/share/nginx/html /var/cache/nginx /var/log/nginx
 RUN touch /var/run/nginx.pid && chown -R appuser:appuser /var/run/nginx.pid
 
-USER appuser
-
-EXPOSE 8080
-
-CMD ["nginx", "-g", "daemon off;"]
+EXPOSE 80
+ENTRYPOINT ["nginx", "-g", "daemon off;"]
