@@ -20,7 +20,7 @@ pipeline {
         stage('Setup GCP Authentication') {
             steps {
                 script {
-                    withCredentials([file(credentialsId: 'gcp-service-account-key', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
+                    withCredentials([file(credentialsId: 'gcp-assignment-cluster', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
                         sh """
                             # Set up GCP authentication
                             export GOOGLE_APPLICATION_CREDENTIALS=\${GOOGLE_APPLICATION_CREDENTIALS}
@@ -177,7 +177,7 @@ pipeline {
         stage('Push to Artifact Registry') {
             steps {
                 script {
-                    withCredentials([file(credentialsId: 'gcp-service-account-key', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
+                    withCredentials([file(credentialsId: 'gcp-assignment-cluster', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
                         sh """
                             # Set up GCP authentication
                             export GOOGLE_APPLICATION_CREDENTIALS=\${GOOGLE_APPLICATION_CREDENTIALS}
@@ -203,7 +203,7 @@ pipeline {
         stage('Deploy to GKE') {
             steps {
                 script {
-                    withCredentials([file(credentialsId: 'gcp-service-account-key', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
+                    withCredentials([file(credentialsId: 'gcp-assignment-cluster', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
                         sh """
                             # Set up GCP authentication
                             export GOOGLE_APPLICATION_CREDENTIALS=\${GOOGLE_APPLICATION_CREDENTIALS}
@@ -236,7 +236,7 @@ pipeline {
         stage('Deploy Worker to Cloud Run') {
             steps {
                 script {
-                    withCredentials([file(credentialsId: 'gcp-service-account-key', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
+                    withCredentials([file(credentialsId: 'gcp-assignment-cluster', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
                         sh """
                             # Set up GCP authentication
                             export GOOGLE_APPLICATION_CREDENTIALS=\${GOOGLE_APPLICATION_CREDENTIALS}
