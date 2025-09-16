@@ -27,5 +27,8 @@ RUN addgroup -g 1000 appuser && adduser -u 1000 -G appuser -s /bin/sh -D appuser
 RUN chown -R appuser:appuser /usr/share/nginx/html /var/cache/nginx /var/log/nginx
 RUN touch /var/run/nginx.pid && chown -R appuser:appuser /var/run/nginx.pid
 
-EXPOSE 80
+# Switch to non-root user
+USER appuser
+
+EXPOSE 8080
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
