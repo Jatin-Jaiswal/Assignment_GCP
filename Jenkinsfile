@@ -6,7 +6,7 @@ pipeline {
         REGION = 'us-central1'
         ARTIFACT_REGISTRY = 'us-central1-docker.pkg.dev/gcp-assignment-471905/gcp-assignment-repo'
         GKE_CLUSTER = 'gcp-assignment-cluster'
-        GKE_ZONE = 'us-central1-a'
+        GKE_ZONE = 'us-central1'
         TRIVY_CACHE_DIR = '/tmp/trivy-cache'
         TRIVY_RESULTS_DIR = 'trivy-results'
     }
@@ -26,6 +26,12 @@ pipeline {
                             export GOOGLE_APPLICATION_CREDENTIALS=\${GOOGLE_APPLICATION_CREDENTIALS}
                             gcloud auth activate-service-account --key-file=\${GOOGLE_APPLICATION_CREDENTIALS}
                             gcloud config set project ${GOOGLE_CLOUD_PROJECT}
+                            
+                            # Enable required APIs
+                            gcloud services enable cloudresourcemanager.googleapis.com
+                            gcloud services enable container.googleapis.com
+                            gcloud services enable run.googleapis.com
+                            gcloud services enable artifactregistry.googleapis.com
                             
                             # Verify authentication
                             gcloud auth list
