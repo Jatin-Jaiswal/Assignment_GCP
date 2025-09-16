@@ -216,44 +216,20 @@ pipeline {
                             # Update image tags in deployment
                             sed -i 's|image: us-central1-docker.pkg.dev/gcp-assignment-471905/gcp-assignment-repo/app:latest|image: ${ARTIFACT_REGISTRY}/app:${BUILD_NUMBER}|g' k8s/app-deployment.yaml
                             sed -i 's|image: us-central1-docker.pkg.dev/gcp-assignment-471905/gcp-assignment-repo/frontend:latest|image: ${ARTIFACT_REGISTRY}/frontend:${BUILD_NUMBER}|g' k8s/frontend-deployment.yaml
+                            sed -i 's|image: us-central1-docker.pkg.dev/gcp-assignment-471905/gcp-assignment-repo/worker:latest|image: ${ARTIFACT_REGISTRY}/worker:${BUILD_NUMBER}|g' k8s/worker-deployment.yaml
                             
                             # Apply Kubernetes manifests
                             kubectl apply -f k8s/namespace.yaml
                             kubectl apply -f k8s/secrets.yaml
                             kubectl apply -f k8s/app-deployment.yaml
                             kubectl apply -f k8s/frontend-deployment.yaml
+                            kubectl apply -f k8s/worker-deployment.yaml
                             kubectl apply -f k8s/ingress.yaml
                             
                             # Wait for deployments to be ready
                             kubectl rollout status deployment/autovyn-app -n dev --timeout=300s
                             kubectl rollout status deployment/autovyn-frontend -n dev --timeout=300s
-                        """
-                    }
-                }
-            }
-        }
-        
-        stage('Deploy Worker to Cloud Run') {
-            steps {
-                script {
-                    withCredentials([file(credentialsId: 'gcp-assignment-cluster', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
-                        sh """
-                            # Set up GCP authentication
-                            export GOOGLE_APPLICATION_CREDENTIALS=\${GOOGLE_APPLICATION_CREDENTIALS}
-                            gcloud auth activate-service-account --key-file=\${GOOGLE_APPLICATION_CREDENTIALS}
-                            gcloud config set project ${GOOGLE_CLOUD_PROJECT}
-                            
-                            # Deploy worker to Cloud Run
-                            gcloud run deploy autovyn-worker \\
-                                --image ${ARTIFACT_REGISTRY}/worker:${BUILD_NUMBER} \\
-                                --region ${REGION} \\
-                                --platform managed \\
-                                --allow-unauthenticated \\
-                                --port 9091 \\
-                                --memory 512Mi \\
-                                --cpu 1 \\
-                                --max-instances 10 \\
-                                --set-env-vars GOOGLE_CLOUD_PROJECT=${GOOGLE_CLOUD_PROJECT}
+                            kubectl rollout status deployment/autovyn-worker -n dev --timeout=300s
                         """
                     }
                 }
