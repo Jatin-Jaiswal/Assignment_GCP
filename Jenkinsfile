@@ -27,12 +27,6 @@ pipeline {
                             gcloud auth activate-service-account --key-file=\${GOOGLE_APPLICATION_CREDENTIALS}
                             gcloud config set project ${GOOGLE_CLOUD_PROJECT}
                             
-                            # Enable required APIs
-                            gcloud services enable cloudresourcemanager.googleapis.com
-                            gcloud services enable container.googleapis.com
-                            gcloud services enable run.googleapis.com
-                            gcloud services enable artifactregistry.googleapis.com
-                            
                             # Verify authentication
                             gcloud auth list
                             gcloud config get-value project
