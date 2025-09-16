@@ -29,7 +29,7 @@ spec:
         - name: DB_PORT
           value: "5432"
         - name: DB_NAME
-          value: "autovyn_db"
+          value: "postgres"
         - name: DB_USER
           value: "postgres"
         - name: DB_PASSWORD
@@ -60,14 +60,18 @@ spec:
           httpGet:
             path: /health/live
             port: 9090
-          initialDelaySeconds: 30
-          periodSeconds: 10
+          initialDelaySeconds: 60
+          periodSeconds: 15
+          timeoutSeconds: 10
+          failureThreshold: 3
         readinessProbe:
           httpGet:
             path: /health/ready
             port: 9090
-          initialDelaySeconds: 5
-          periodSeconds: 5
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
